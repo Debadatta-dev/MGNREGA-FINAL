@@ -1,7 +1,8 @@
-// client/src/App.jsx
 import React, { useCallback, useEffect, useState } from "react";
 import Filters from "./components/Filters";
 import DataTable from "./components/DataTable";
+
+const BASE_URL = "https://mgnrega-final-1-eaft.onrender.com";
 
 export default function App() {
   const [selected, setSelected] = useState({ state: "", district: "" });
@@ -29,7 +30,7 @@ export default function App() {
         if (selected.state) params.set("state", selected.state);
         if (selected.district) params.set("district", selected.district);
 
-        const url = `http://localhost:5000/api/data?${params.toString()}`;
+        const url = `${BASE_URL}/api/data?${params.toString()}`;
         const res = await fetch(url);
         const json = await res.json();
         if (!res.ok) {
@@ -37,8 +38,8 @@ export default function App() {
           setError(json.error || "Server error");
           setData([]);
         } else {
-          // server returns { records: [...], total: N } in our server code
-          setData(json.records || json || []);
+          // server returns { records: [...], total: N }
+          setData(json.records || []);
         }
       } catch (err) {
         console.error("Fetch /api/data failed:", err);
@@ -55,7 +56,7 @@ export default function App() {
     <div>
       <h1>MGNREGA Dashboard</h1>
 
-      <Filters onChange={onFilterChange} />
+      <Filters onChange={onFilterChange} baseUrl={BASE_URL} />
 
       <div style={{ marginTop: 12 }}>
         {loading && <div>Loading data...</div>}

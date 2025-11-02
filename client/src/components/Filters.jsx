@@ -1,11 +1,12 @@
-// client/src/components/Filters.jsx
 import React, { useEffect, useState } from "react";
 
 /*
   Props:
     onChange: function({ state: string, district: string })  // called when selection changes
+    baseUrl: backend base URL (optional, defaults to Render URL)
 */
-export default function Filters({ onChange }) {
+export default function Filters({ onChange, baseUrl }) {
+  const BASE = baseUrl || "https://mgnrega-final-1-eaft.onrender.com";
   const [records, setRecords] = useState([]);          // raw records from server
   const [states, setStates] = useState([]);            // unique states
   const [districts, setDistricts] = useState([]);      // unique districts for selected state
@@ -20,7 +21,7 @@ export default function Filters({ onChange }) {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("http://localhost:5000/api/filters");
+        const res = await fetch(`${BASE}/api/filters`);
         const json = await res.json();
         if (res.ok && json.records && Array.isArray(json.records)) {
           setRecords(json.records);
@@ -29,7 +30,6 @@ export default function Filters({ onChange }) {
           ).sort();
           setStates(uniqueStates);
         } else {
-          // show helpful error in console and UI
           console.error("/api/filters returned unexpected shape:", json);
           setError("Failed to load filter data (unexpected response). Check server logs.");
         }
@@ -41,7 +41,7 @@ export default function Filters({ onChange }) {
       }
     }
     loadFilters();
-  }, []);
+  }, [BASE]);
 
   // when stateSel changes, compute districts for that state
   useEffect(() => {

@@ -1,4 +1,3 @@
-// client/src/components/DataTable.jsx
 import React from "react";
 
 export default function DataTable({ data = [] }) {
