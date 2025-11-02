@@ -34,8 +34,6 @@ async function fetchFromGov(url) {
 /*
   /api/filters
   Returns: { records: [...] }
-  This endpoint retrieves a bulk set of records (limit controlled below) so the client can
-  derive unique state/district lists locally.
 */
 app.get("/api/filters", async (req, res) => {
   try {
@@ -55,13 +53,6 @@ app.get("/api/filters", async (req, res) => {
 
 /*
   /api/data
-  Query params:
-    - state (optional): exact state_name to filter
-    - district (optional): exact district_name to filter
-    - limit (optional): number of records, default 10
-    - offset (optional): offset for pagination, default 0
-
-  Returns: { records: [...], total: N }
 */
 app.get("/api/data", async (req, res) => {
   try {
@@ -86,6 +77,7 @@ app.get("/api/data", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+// ✅ CRITICAL FIX FOR RENDER
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });
