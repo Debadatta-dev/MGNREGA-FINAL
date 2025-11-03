@@ -1,83 +1,156 @@
-// client/src/App.jsx
-import React, { useCallback, useEffect, useState } from "react";
-import Filters from "./components/Filters";
-import DataTable from "./components/DataTable";
+// src/App.jsx
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
+import Home from "./pages/Home";
+import Dashboard from "./pages/DashBoard";
+import NotFound from "./pages/NotFound";
 
-const BASE_URL = "https://mgnrega-final-1-eaft.onrender.com"; // <-- Render backend
+function Navigation() {
+  const location = useLocation();
 
-export default function App() {
-  const [selected, setSelected] = useState({ state: "", district: "" });
-  const [data, setData] = useState([]);
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 10;
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  // callback for Filters component
-  const handleFilterChange = useCallback(({ state, district }) => {
-    setSelected({ state, district });
-    setPage(0);
-  }, []);
-
-  // fetch data when filters or page changes
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      setError("");
-      try {
-        const params = new URLSearchParams();
-        params.set("limit", rowsPerPage);
-        params.set("offset", page * rowsPerPage);
-        if (selected.state) params.set("state", selected.state);
-        if (selected.district) params.set("district", selected.district);
-
-        const url = `${BASE_URL}/api/data?${params.toString()}`;
-        const res = await fetch(url);
-        const json = await res.json();
-
-        if (!res.ok) {
-          console.error("API responded with error:", json);
-          setError(json.error || "API returned an error");
-          setData([]);
-        } else {
-          // server returns either { records: [...], total: N } or records array
-          const records = json.records ?? json;
-          setData(Array.isArray(records) ? records : []);
-        }
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Failed to load data (network or server error)");
-        setData([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    // only fetch if user selected something OR we still want default empty table
-    load();
-  }, [selected, page]);
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <div style={{ padding: 16 }}>
-      <h1>MGNREGA Dashboard</h1>
+    <nav
+      style={{
+        backgroundColor: "#2c3e50",
+        padding: "0",
+        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+        marginBottom: "20px",
+        stickyPosition: "sticky",
+        top: 0,
+        zIndex: 100,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "0",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          height: "60px",
+        }}
+      >
+        <Link
+          to="/"
+          style={{
+            color: "white",
+            textDecoration: "none",
+            fontWeight: "bold",
+            fontSize: "18px",
+            padding: "0 20px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+          title="Go to Home"
+        >
+          <span style={{ fontSize: "24px" }}>🏛️</span>
+          MGNREGA
+        </Link>
 
-      <Filters onChange={handleFilterChange} baseUrl={BASE_URL} />
-
-      <div style={{ marginTop: 12 }}>
-        {loading && <div>Loading data...</div>}
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        {!loading && !error && <DataTable data={data} />}
+        <ul
+          style={{
+            listStyle: "none",
+            display: "flex",
+            gap: "0",
+            margin: "0",
+            padding: "0",
+            height: "100%",
+            alignItems: "center",
+          }}
+        >
+          <li>
+            <Link
+              to="/"
+              style={{
+                color: isActive("/") ? "#3498db" : "white",
+                textDecoration: "none",
+                padding: "20px",
+                display: "flex",
+                alignItems: "center",
+                height: "100%",
+                transition: "background-color 0.3s ease, color 0.3s ease",
+                backgroundColor: isActive("/")
+                  ? "rgba(52, 152, 219, 0.1)"
+                  : "transparent",
+                borderBottom: isActive("/")
+                  ? "3px solid #3498db"
+                  : "3px solid transparent",
+                fontWeight: isActive("/") ? "600" : "500",
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive("/")) {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(255, 255, 255, 0.1)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive("/")) {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }
+              }}
+            >
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/dashboard"
+              style={{
+                color: isActive("/dashboard") ? "#3498db" : "white",
+                textDecoration: "none",
+                padding: "20px",
+                display: "flex",
+                alignItems: "center",
+                height: "100%",
+                transition: "background-color 0.3s ease, color 0.3s ease",
+                backgroundColor: isActive("/dashboard")
+                  ? "rgba(52, 152, 219, 0.1)"
+                  : "transparent",
+                borderBottom: isActive("/dashboard")
+                  ? "3px solid #3498db"
+                  : "3px solid transparent",
+                fontWeight: isActive("/dashboard") ? "600" : "500",
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive("/dashboard")) {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(255, 255, 255, 0.1)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive("/dashboard")) {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }
+              }}
+            >
+              Dashboard
+            </Link>
+          </li>
+        </ul>
       </div>
+    </nav>
+  );
+}
 
-      <div style={{ marginTop: 12 }}>
-        <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>
-          Prev
-        </button>
-        <span style={{ margin: "0 10px" }}>Page {page + 1}</span>
-        <button onClick={() => setPage((p) => p + 1)} disabled={data.length < rowsPerPage}>
-          Next
-        </button>
-      </div>
-    </div>
+export default function App() {
+  return (
+    <Router>
+      <Navigation />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
